@@ -22,6 +22,7 @@ pipeline {
       steps {
         withCredentials(bindings: [[$class:  'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'bear1', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
           sh """
+
                mkdir -p ~/.aws
                echo "[default]" >~/.aws/credentials
                echo "[default]" >~/.boto
@@ -44,11 +45,13 @@ pipeline {
         sh './push_docker.sh'
       }
     }
-    stage('create eksctl') {
+    stage('update eksctl') {
       steps {
-        sh '''eksctl create cluster --region us-east-2 --name prod --nodegroup-name standard-workers --node-type t2.micro
+
+        sh '''eksctl update cluster --region us-east-2 --name prod
+
 '''
       }
     }
   }
-}
+}   
