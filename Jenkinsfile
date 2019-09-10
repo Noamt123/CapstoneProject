@@ -25,16 +25,14 @@ pipeline {
 
 
 
-               mkdir -p ~/.aws
-               echo "[default]" >~/.aws/credentials
-               echo "[default]" >~/.boto
-               echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.boto
-               echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.boto
-               echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.aws/credentials
-               echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.aws/credentials
-                 """
-
-
+                         mkdir -p ~/.aws
+                         echo "[default]" >~/.aws/credentials
+                         echo "[default]" >~/.boto
+                         echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.boto
+                         echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.boto
+                         echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.aws/credentials
+                         echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.aws/credentials
+                           """
         }
 
       }
@@ -50,30 +48,64 @@ pipeline {
       }
     }
     stage('update eksctl') {
-      steps {
-        sh '''eksctl update cluster --region us-east-2 --name prod
+      parallel {
+        stage('update eksctl blue') {
+          steps {
+            sh '''eksctl update cluster --region us-east-2 --name blue
 
 '''
+          }
+        }
+        stage('update eksctl green') {
+          steps {
+            sh 'eksctl update cluster --region us-east-2 --name green'
+          }
+        }
       }
     }
-    stage('config') {
+    stage('config blue') {
       steps {
-        sh 'aws eks --region us-east-2 update-kubeconfig --name prod'
+        sh 'aws eks --region us-east-2 update-kubeconfig --name blue'
       }
     }
-    stage('context') {
+    stage('context blue') {
       steps {
         sh 'kubectl config use-context arn:aws:eks:us-east-2:480296741373:cluster/prod'
       }
     }
-    stage('deploy') {
+    stage('deploy blue') {
       steps {
         sh 'kubectl run blue --image=beartuchman/capstone:newester --port=80'
       }
     }
-    stage('load') {
+    stage('load blue') {
       steps {
         sh 'kubectl expose deployment blue --type=LoadBalancer --name=load'
+      }
+    }
+    stage('get ip blue') {
+      steps {
+        sh 'kubectl get svc'
+      }
+    }
+    stage('config green') {
+      steps {
+        sh 'aws eks --region us-east-2 update-kubeconfig --name green'
+      }
+    }
+    stage('context green') {
+      steps {
+        sh 'kubectl config use-context'
+      }
+    }
+    stage('deploy green') {
+      steps {
+        sh 'kubectl expose deployment green --type=LoadBalancer --name=load'
+      }
+    }
+    stage('get ip green') {
+      steps {
+        sh 'kubectl get svc'
       }
     }
   }
