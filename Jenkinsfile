@@ -25,14 +25,14 @@ pipeline {
 
 
 
-                         mkdir -p ~/.aws
-                         echo "[default]" >~/.aws/credentials
-                         echo "[default]" >~/.boto
-                         echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.boto
-                         echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.boto
-                         echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.aws/credentials
-                         echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.aws/credentials
-                           """
+                                   mkdir -p ~/.aws
+                                   echo "[default]" >~/.aws/credentials
+                                   echo "[default]" >~/.boto
+                                   echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.boto
+                                   echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.boto
+                                   echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.aws/credentials
+                                   echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.aws/credentials
+                                     """
         }
 
       }
@@ -51,14 +51,14 @@ pipeline {
       parallel {
         stage('create eksctl blue') {
           steps {
-            sh '''eksctl create cluster --region us-east-2 --name blue --nodegroup-name standard workers --node-type t2.micro
+            sh '''eksctl create cluster --region us-east-2 --name blue --node-type t2.micro
 
 '''
           }
         }
         stage('create eksctl green') {
           steps {
-            sh 'eksctl create cluster --region us-east-2 --name green --nodegroup-name standard workers --node-type t2.micro'
+            sh 'eksctl create cluster --region us-east-2 --name green --node-type t2.micro'
           }
         }
       }
