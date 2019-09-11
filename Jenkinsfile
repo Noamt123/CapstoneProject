@@ -25,14 +25,14 @@ pipeline {
 
 
 
-                                   mkdir -p ~/.aws
-                                   echo "[default]" >~/.aws/credentials
-                                   echo "[default]" >~/.boto
-                                   echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.boto
-                                   echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.boto
-                                   echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.aws/credentials
-                                   echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.aws/credentials
-                                     """
+                                             mkdir -p ~/.aws
+                                             echo "[default]" >~/.aws/credentials
+                                             echo "[default]" >~/.boto
+                                             echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.boto
+                                             echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.boto
+                                             echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.aws/credentials
+                                             echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.aws/credentials
+                                               """
         }
 
       }
@@ -61,26 +61,6 @@ pipeline {
             sh 'eksctl create cluster --region us-east-2 --name green --node-type t2.micro'
           }
         }
-      }
-    }
-    stage('config') {
-      steps {
-        sh 'aws eks --region us-east-2 update-kubeconfig --name prod'
-      }
-    }
-    stage('context') {
-      steps {
-        sh 'kubectl config use-context arn:aws:eks:us-east-2:480296741373:cluster/prod'
-      }
-    }
-    stage('deploy') {
-      steps {
-        sh 'kubectl run blue --image=beartuchman/capstone:newester --port=80'
-      }
-    }
-    stage('load') {
-      steps {
-        sh 'kubectl expose deployment blue --type=LoadBalancer --name=load'
       }
     }
   }
