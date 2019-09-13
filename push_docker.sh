@@ -1,7 +1,9 @@
-docker build --tag=capstone1 .
+docker build --tag=capstone .
 
-dockerpath=beartuchman/capstone1
+docker run -p 5000:80 capstone
 
-docker tag capstone ${dockerpath}:newester34
+dockerpath=beartuchman/capstone
 
-docker push ${dockerpath}:newester34
+docker tag capstone ${dockerpath}:newester3
+
+docker push ${dockerpath}:newester3
