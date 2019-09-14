@@ -25,14 +25,14 @@ pipeline {
 
 
 
-                                                                                               mkdir -p ~/.aws
-                                                                                               echo "[default]" >~/.aws/credentials
-                                                                                               echo "[default]" >~/.boto
-                                                                                               echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.boto
-                                                                                               echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.boto
-                                                                                               echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.aws/credentials
-                                                                                               echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.aws/credentials
-                                                                                                 """
+                                                                                                         mkdir -p ~/.aws
+                                                                                                         echo "[default]" >~/.aws/credentials
+                                                                                                         echo "[default]" >~/.boto
+                                                                                                         echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.boto
+                                                                                                         echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.boto
+                                                                                                         echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.aws/credentials
+                                                                                                         echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.aws/credentials
+                                                                                                           """
         }
 
       }
@@ -40,7 +40,6 @@ pipeline {
     stage('docker login') {
       steps {
         sh 'cat password.txt | docker login --username beartuchman --password-stdin'
-        sh 'docker pull'
       }
     }
     stage('push docker') {
@@ -56,8 +55,17 @@ pipeline {
       }
     }
     stage('config blue') {
-      steps {
-        sh 'aws eks --region us-east-2 update-kubeconfig --name blue'
+      parallel {
+        stage('config blue') {
+          steps {
+            sh 'aws eks --region us-east-2 update-kubeconfig --name blue'
+          }
+        }
+        stage('docker pull') {
+          steps {
+            sh 'docker pull beartuchman/capstone:newester5'
+          }
+        }
       }
     }
     stage('context blue') {
